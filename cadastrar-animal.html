@@ -1,0 +1,173 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Animal - BoiNegócio</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <img src="https://via.placeholder.com/40" alt="Logo">
+                    BoiNegócio
+                </div>
+                <div class="user-actions">
+                    <span id="user-greeting"></span>
+                    <a href="index.html">Home</a>
+                    <a href="#" id="logout" style="display: none;">Sair</a>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <ul>
+                    <li><a href="index.html#comprar">Comprar</a></li>
+                    <li><a href="index.html#vender">Vender</a></li>
+                    <li><a href="index.html#noticias">Notícias</a></li>
+                    <li><a href="index.html#financeiro">Financeiro</a></li>
+                    <li><a href="index.html#contato">Contato</a></li>
+                    <li><a href="cadastrar-animal.html" id="cadastrar-animal-link">Cadastrar Animal</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="cadastrar-animal-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Cadastrar Animal</h2>
+                </div>
+                <form id="cadastrar-animal-form" method="POST">
+                    <div class="form-group">
+                        <label for="animal-nome">Nome do Animal (Opcional)</label>
+                        <input type="text" id="animal-nome" name="nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-raca">Raça</label>
+                        <select id="animal-raca" name="raca" required>
+                            <option value="">Selecione</option>
+                            <option value="Nelore">Nelore</option>
+                            <option value="Angus">Angus</option>
+                            <option value="Brahman">Brahman</option>
+                            <option value="Girolando">Girolando</option>
+                            <option value="Outra">Outra</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-idade">Idade (meses)</label>
+                        <input type="number" id="animal-idade" name="idade" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-peso">Peso (kg)</label>
+                        <input type="number" id="animal-peso" name="peso" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-preco">Preço (R$)</label>
+                        <input type="number" step="0.01" id="animal-preco" name="preco" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-localizacao">Localização (Cidade/Estado)</label>
+                        <input type="text" id="animal-localizacao" name="localizacao" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-foto">URL da Foto do Animal (Opcional)</label>
+                        <input type="text" id="animal-foto" name="foto" placeholder="Ex.: https://exemplo.com/foto.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="animal-descricao">Descrição</label>
+                        <textarea id="animal-descricao" name="descricao"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Cadastrar Animal</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-column">
+                <h3>BoiNegócio</h3>
+                <ul>
+                    <li><a href="#">Sobre Nós</a></li>
+                    <li><a href="#">Contato</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Para Compradores</h3>
+                <ul>
+                    <li><a href="#">Como Comprar</a></li>
+                    <li><a href="#">Financiamento</a></li>
+                    <li><a href="#">Transporte de Gado</a></li>
+                    <li><a href="#">Dúvidas Frequentes</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Para Vendedores</h3>
+                <ul>
+                    <li><a href="#">Como Vender</a></li>
+                    <li><a href="#">Dicas para Anúncios</a></li>
+                    <li><a href="#">Cadastre sua Fazenda</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contato</h3>
+                <ul>
+                    <li><a href="#">(31) 99999-9999</a></li>
+                    <li><a href="#">contato@boinegocio.com</a></li>
+                    <li><a href="#">WhatsApp</a></li>
+                    <li><a href="#">SAC</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 BoiNegócio - Todos os direitos reservados</p>
+        </div>
+    </footer>
+</body>
+</html>
