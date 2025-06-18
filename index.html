@@ -1,0 +1,180 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site do Boi - O Melhor do Gado</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <img src="https://via.placeholder.com/40" alt="Logo">
+                    SITE DO BOI
+                </div>
+                <div class="user-actions">
+                    <a href="login.html">Login</a>
+                    <a href="login.html#cadastro">Cadastre-se</a>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar gado...">
+                <button>Buscar</button>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <ul>
+                    <li><a href="#comprar">Comprar</a></li>
+                    <li><a href="#vender">Vender</a></li>
+                    <li><a href="#leiloes">Leilões</a></li>
+                    <li><a href="#noticias">Notícias</a></li>
+                    <li><a href="#financeiro">Financeiro</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="banner">
+            <div class="banner-content">
+                <h1>Encontre o gado ideal para seu negócio!</h1>
+                <p>Mais de 10.000 cabeças de gado disponíveis em todo o Brasil</p>
+                <a href="#anuncios" class="btn">Ver Anúncios</a>
+            </div>
+        </section>
+
+        <section id="anuncios">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Bois em Destaque</h2>
+                </div>
+                <div class="ads-grid">
+                    <div class="ad-card">
+                        <div class="ad-image" style="background-image: url('https://via.placeholder.com/280x180');"></div>
+                        <div class="ad-info">
+                            <h3>Nelore Mocho - 24 meses</h3>
+                            <div class="ad-price">R$ 5.400,00</div>
+                            <div class="ad-details">
+                                <span>450 kg</span>
+                                <span>Fazenda Boa Vista</span>
+                            </div>
+                            <a href="#" class="btn">Ver Detalhes</a>
+                        </div>
+                    </div>
+                    <div class="ad-card">
+                        <div class="ad-image神的>                        <div class="ad-image" style="background-image: url('https://via.placeholder.com/280x180');"></div>
+                        <div class="ad-info">
+                            <h3>Angus - 18 meses</h3>
+                            <div class="ad-price">R$ 6.200,00</div>
+                            <div class="ad-details">
+                                <span>380 kg</span>
+                                <span>Fazenda Santa Rita</span>
+                            </div>
+                            <a href="#" class="btn">Ver Detalhes</a>
+                        </div>
+                    </div>
+                    <!-- Mais cards de anúncios -->
+                </div>
+            </div>
+        </section>
+
+        <section id="leiloes">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Próximos Leilões</h2>
+                </div>
+                <p>Participe dos nossos leilões online e encontre as melhores ofertas</p>
+                <a href="#" class="btn">Ver Agenda Completa</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-column">
+                <h3>Sobre Nós</h3>
+                <ul>
+                    <li><a href="#">Quem Somos</a></li>
+                    <li><a href="#">Nossa História</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Para Compradores</h3>
+                <ul>
+                    <li><a href="#">Como Comprar</a></li>
+                    <li><a href="#">Financiamento</a></li>
+                    <li><a href="#">Transporte</a></li>
+                    <li><a href="#">Dúvidas Frequentes</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Para Vendedores</h3>
+                <ul>
+                    <li><a href="#">Anunciar Gado</a></li>
+                    <li><a href="#">Leilões</a></li>
+                    <li><a href="#">Dicas para Vender</a></li>
+                    <li><a href="#">Cadastre sua Fazenda</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contato</h3>
+                <ul>
+                    <li><a href="#">Fale Conosco</a></li>
+                    <li><a href="#">WhatsApp</a></li>
+                    <li><a href="#">SAC</a></li>
+                    <li><a href="#">Trabalhe Conosco</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Site do Boi - Todos os direitos reservados</p>
+        </div>
+    </footer>
+</body>
+</html>
